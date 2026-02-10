@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../store/hooks';
 import { fetchShops } from '../store/slices/shopsSlice';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -278,7 +279,7 @@ const MapPreviewSection = ({ selectedRadius }) => {
 };
 
 // Category Discovery Grid
-const CategoryGrid = ({ categories, onCategorySelect }) => {
+const CategoryGrid = ({ categories, onCategorySelect, selectedCategory, setSelectedCategory }) => {
   return (
     <section className="py-20 bg-gray-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -287,14 +288,33 @@ const CategoryGrid = ({ categories, onCategorySelect }) => {
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Find exactly what you're looking for across different business categories
           </p>
+          
+          {/* Explore Button - Only shows when a category is selected */}
+          {selectedCategory && selectedCategory !== 'all' && (
+            <div className="mt-8">
+              <button
+                onClick={() => onCategorySelect(selectedCategory)}
+                className="bg-linear-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 flex items-center space-x-2 mx-auto"
+              >
+                <span>Explore {categories.find(c => c.id === selectedCategory)?.name}</span>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          )}
         </div>
         
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
           {categories.map((category, index) => (
             <div
               key={category.id}
-              onClick={() => onCategorySelect(category.id)}
-              className="group cursor-pointer bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-100 hover:border-gray-200"
+              onClick={() => setSelectedCategory(category.id)}
+              className={`group cursor-pointer bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border ${
+                selectedCategory === category.id 
+                  ? 'border-blue-500 ring-2 ring-blue-500/20 shadow-blue-100' 
+                  : 'border-gray-100 hover:border-gray-200'
+              }`}
               style={{
                 animationDelay: `${index * 100}ms`
               }}
@@ -308,6 +328,13 @@ const CategoryGrid = ({ categories, onCategorySelect }) => {
               <p className="text-gray-600 text-sm text-center leading-relaxed">
                 {category.description}
               </p>
+              
+              {/* Selection Indicator */}
+              {selectedCategory === category.id && (
+                <div className="mt-4 flex justify-center">
+                  <div className="w-8 h-1 bg-blue-600 rounded-full"></div>
+                </div>
+              )}
               
               {/* Hover Effect Indicator */}
               <div className="mt-4 h-1 w-8 mx-auto bg-linear-to-r from-blue-500 to-blue-600 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:scale-x-110"></div>
@@ -521,6 +548,7 @@ const ConversionFooter = () => {
 
 // Main HomePage Component
 const HomePage = () => {
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { shops, loading, error } = useAppSelector((state) => state.shops);
   const { user } = useUser();
@@ -614,6 +642,9 @@ const HomePage = () => {
 
   const handleCategorySelect = (categoryId) => {
     setSelectedCategory(categoryId);
+    if (categoryId && categoryId !== 'all') {
+      navigate('/category-map', { state: { category: categories.find(c => c.id === categoryId)?.name } });
+    }
   };
 
   if (loading) {
@@ -654,7 +685,12 @@ const HomePage = () => {
         categories={categories}
       />
       <MapPreviewSection selectedRadius={selectedRadius} />
-      <CategoryGrid categories={categories} onCategorySelect={handleCategorySelect} />
+      <CategoryGrid 
+        categories={categories} 
+        onCategorySelect={handleCategorySelect} 
+        selectedCategory={selectedCategory}
+        setSelectedCategory={setSelectedCategory}
+      />
       <FeaturedShops shops={featuredShops} loading={loading} />
       <ConversionFooter />
     </div>

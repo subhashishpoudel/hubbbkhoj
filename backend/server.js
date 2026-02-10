@@ -60,19 +60,22 @@ const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/khojhub');
     console.log('✅ MongoDB connected successfully');
+    return true;
   } catch (error) {
     console.error('❌ MongoDB connection error:', error);
-    process.exit(1);
+    console.log('⚠️  Starting server without database connection');
+    return false;
   }
 };
 
 // Start server
 const PORT = process.env.PORT || 5000;
 const startServer = async () => {
-  await connectDB();
+  const dbConnected = await connectDB();
   app.listen(PORT, () => {
     console.log(`🚀 KhojHub API server running on port ${PORT}`);
     console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`💾 Database: ${dbConnected ? 'Connected' : 'Not connected (running in demo mode)'}`);
   });
 };
 
