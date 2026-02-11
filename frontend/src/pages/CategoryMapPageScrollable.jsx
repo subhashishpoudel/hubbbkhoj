@@ -31,6 +31,7 @@ const CategoryMapPageScrollable = () => {
   const [mapZoom, setMapZoom] = useState(14);
   const [userLocation, setUserLocation] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isDarkMode, setIsDarkMode] = useState(true);
   
   // Filter states
   const [productSearch, setProductSearch] = useState('');
@@ -130,7 +131,7 @@ const CategoryMapPageScrollable = () => {
   });
 
   return (
-    <div className="h-screen bg-white overflow-hidden">
+    <div className={`h-screen overflow-hidden ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
       {/* Map Section - Full Screen */}
       <div className="relative w-full h-full">
         {/* Map Container */}
@@ -146,10 +147,13 @@ const CategoryMapPageScrollable = () => {
           doubleClickZoom={true}
           touchZoom={true}
         >
-          {/* DARK THEME - CartoDB Dark Matter (No Buildings, Max Zoom 19) */}
+          {/* Map Tiles - Switch between Dark and Light */}
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
+            url={isDarkMode 
+              ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png" 
+              : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
+            }
             maxZoom={19}
           />
           
@@ -181,10 +185,10 @@ const CategoryMapPageScrollable = () => {
         </MapContainer>
         
         {/* Sidebar */}
-        <div className="absolute left-4 top-4 bottom-4 w-80 bg-gray-900 rounded-xl shadow-2xl z-10 flex flex-col backdrop-blur-sm bg-gray-900/95">
+        <div className={`absolute left-4 top-4 bottom-4 w-80 rounded-xl shadow-2xl z-10 flex flex-col backdrop-blur-sm transition-colors duration-300 ${isDarkMode ? 'bg-gray-900/95' : 'bg-white/95'}`}>
           {/* Sidebar Header */}
-          <div className="p-4 border-b border-gray-700">
-            <h2 className="text-lg font-semibold text-gray-100 mb-2">{category}</h2>
+          <div className={`p-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+            <h2 className={`text-lg font-semibold mb-2 ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>{category}</h2>
             
             {/* Search Bar */}
             <form onSubmit={handleSearch} className="relative">
@@ -193,11 +197,15 @@ const CategoryMapPageScrollable = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search location..."
-                className="w-full px-4 py-2 pr-10 bg-gray-800 border border-gray-600 rounded-lg text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className={`w-full px-4 py-2 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 ${
+                  isDarkMode 
+                    ? 'bg-gray-800 border-gray-600 text-gray-100 placeholder-gray-400' 
+                    : 'bg-gray-100 border-gray-300 text-gray-900 placeholder-gray-500'
+                }`}
               />
               <button
                 type="submit"
-                className="absolute right-2 top-2 text-gray-400 hover:text-gray-200"
+                className={`absolute right-2 top-2 ${isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'}`}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -207,17 +215,21 @@ const CategoryMapPageScrollable = () => {
           </div>
           
           {/* Product Search */}
-          <div className="p-4 border-b border-gray-700">
-            <h3 className="text-sm font-medium text-gray-300 mb-3">Search Products</h3>
+          <div className={`p-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+            <h3 className={`text-sm font-medium mb-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Search Products</h3>
             <div className="relative">
               <input
                 type="text"
                 value={productSearch}
                 onChange={(e) => setProductSearch(e.target.value)}
                 placeholder="Search products..."
-                className="w-full px-4 py-2 pr-10 bg-gray-800 border border-gray-600 rounded-lg text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className={`w-full px-4 py-2 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-300 ${
+                  isDarkMode 
+                    ? 'bg-gray-800 border-gray-600 text-gray-100 placeholder-gray-400' 
+                    : 'bg-gray-100 border-gray-300 text-gray-900 placeholder-gray-500'
+                }`}
               />
-              <div className="absolute right-2 top-2 text-gray-400">
+              <div className={`absolute right-2 top-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
@@ -226,12 +238,16 @@ const CategoryMapPageScrollable = () => {
           </div>
           
           {/* Category Filter */}
-          <div className="p-4 border-b border-gray-700">
-            <h3 className="text-sm font-medium text-gray-300 mb-3">Category</h3>
+          <div className={`p-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+            <h3 className={`text-sm font-medium mb-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Category</h3>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300 ${
+                isDarkMode 
+                  ? 'bg-gray-800 border-gray-600 text-gray-100' 
+                  : 'bg-gray-100 border-gray-300 text-gray-900'
+              }`}
             >
               <option value="All">All Categories</option>
               <option value="Electronics">Electronics</option>
@@ -244,8 +260,8 @@ const CategoryMapPageScrollable = () => {
           </div>
           
           {/* Distance Filter */}
-          <div className="p-4 border-b border-gray-700">
-            <h3 className="text-sm font-medium text-gray-300 mb-3">Distance (km)</h3>
+          <div className={`p-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+            <h3 className={`text-sm font-medium mb-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Distance (km)</h3>
             <div className="flex items-center space-x-3">
               <input
                 type="range"
@@ -253,24 +269,26 @@ const CategoryMapPageScrollable = () => {
                 max="50"
                 value={distanceFilter}
                 onChange={(e) => setDistanceFilter(Number(e.target.value))}
-                className="flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                className={`flex-1 h-2 rounded-lg appearance-none cursor-pointer ${isDarkMode ? 'bg-gray-700' : 'bg-gray-300'}`}
               />
-              <span className="text-sm text-gray-300 w-12">{distanceFilter}km</span>
+              <span className={`text-sm w-12 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>{distanceFilter}km</span>
             </div>
           </div>
           
           {/* Rating Filter */}
-          <div className="p-4 border-b border-gray-700">
-            <h3 className="text-sm font-medium text-gray-300 mb-3">Minimum Rating</h3>
+          <div className={`p-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+            <h3 className={`text-sm font-medium mb-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Minimum Rating</h3>
             <div className="flex space-x-2">
               {[0, 1, 2, 3, 4, 5].map(rating => (
                 <button
                   key={rating}
                   onClick={() => setMinRating(rating)}
-                  className={`px-3 py-1 text-xs rounded-full ${
+                  className={`px-3 py-1 text-xs rounded-full transition-colors duration-200 ${
                     minRating === rating
                       ? 'bg-blue-600 text-blue-100'
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                      : isDarkMode 
+                        ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' 
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
                 >
                   {rating === 0 ? 'All' : `${rating}★`}
@@ -280,25 +298,29 @@ const CategoryMapPageScrollable = () => {
           </div>
           
           {/* Sort by Rating */}
-          <div className="p-4 border-b border-gray-700">
-            <h3 className="text-sm font-medium text-gray-300 mb-3">Sort by Rating</h3>
+          <div className={`p-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+            <h3 className={`text-sm font-medium mb-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Sort by Rating</h3>
             <div className="flex space-x-2">
               <button
                 onClick={() => setSortByRating('desc')}
-                className={`px-3 py-1 text-xs rounded-full ${
+                className={`px-3 py-1 text-xs rounded-full transition-colors duration-200 ${
                   sortByRating === 'desc'
                     ? 'bg-blue-600 text-blue-100'
-                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    : isDarkMode 
+                      ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' 
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
               >
                 Highest First
               </button>
               <button
                 onClick={() => setSortByRating('asc')}
-                className={`px-3 py-1 text-xs rounded-full ${
+                className={`px-3 py-1 text-xs rounded-full transition-colors duration-200 ${
                   sortByRating === 'asc'
                     ? 'bg-blue-600 text-blue-100'
-                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    : isDarkMode 
+                      ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' 
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
               >
                 Lowest First
@@ -307,8 +329,8 @@ const CategoryMapPageScrollable = () => {
           </div>
           
           {/* Location Info */}
-          <div className="p-4 border-t border-gray-700">
-            <div className="flex items-center text-sm text-gray-300">
+          <div className={`p-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+            <div className={`flex items-center text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -330,6 +352,21 @@ const CategoryMapPageScrollable = () => {
         
         {/* Map Controls */}
         <div className="absolute bottom-4 right-4 z-10 flex flex-col space-y-2">
+          <button
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            className="bg-white p-2 rounded-lg shadow-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+          >
+            {isDarkMode ? (
+              <svg className="w-5 h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+              </svg>
+            )}
+          </button>
           <button
             onClick={handleZoomIn}
             className="bg-white p-2 rounded-lg shadow-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
